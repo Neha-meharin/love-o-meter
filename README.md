@@ -22,12 +22,14 @@ A fun and interactive website that analyzes how you describes your valentine and
 - **AI Processing**: Custom text analysis logic for sentiment scoring
 
 ## 📸 Screenshots
-![Screenshot]
+![Screenshot]![Screenshot 2025-02-16 220223](https://github.com/user-attachments/assets/4f0c6392-ef28-4762-9759-36eb78a1bb68)
+![Screenshot 2025-02-16 220338](https://github.com/user-attachments/assets/ab0c44da-31ff-4f56-acb2-2c2d1cb38fb3)
+
 
 ## 🔧 Installation & Usage
 1. Clone the repository:
    ```sh
-   git clone https://github.com/yourusername/valentines-sentiment-analyzer.git
+   git clone https://neha-meharin.github.io/love-o-meter/
    ```
 2. Open `index.html` in your browser and start speaking!
 
@@ -39,5 +41,5 @@ Big thanks to web technologies that make this possible: Web Speech API, CSS anim
 
 ---
 🚀 **Try it out and let AI Cupid decide your love fate!** 💕
-
+https://neha-meharin.github.io/love-o-meter/
 
