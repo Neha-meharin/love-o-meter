@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valentine's Sentiment Analyzer</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Satisfy&display=swap');
+        
+        :root {
+            --primary: #ff4d6d;
+            --secondary: #c9184a;
+            --light: #ffccd5;
+            --dark: #590d22;
+            --white: #fff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--light), #ffc8dd);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--dark);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin-top: 50px;
+        }
+        
+        h1 {
+            font-family: 'Satisfy', cursive;
+            color: var(--primary);
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        p {
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .mic-container {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0;
+        }
+        
+        .mic-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 77, 109, 0.4);
+        }
+        
+        .mic-btn:hover {
+            transform: scale(1.05);
+            background: var(--secondary);
+        }
+        
+        .mic-btn svg {
+            width: 40px;
+            height: 40px;
+            fill: var(--white);
+        }
+        
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 77, 109, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 15px rgba(255, 77, 109, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 77, 109, 0);
+            }
+        }
+        
+        .transcript {
+            margin: 20px 0;
+            padding: 15px;
+            background: var(--light);
+            border-radius: 10px;
+            min-height: 60px;
+            text-align: left;
+        }
+        
+        .empty-transcript {
+            font-style: italic;
+            color: #888;
+            text-align: center;
+        }
+        
+        .response-container {
+            position: relative;
+            margin-top: 40px;
+            display: none;
+        }
+        
+        .response-bubble {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .response-bubble:after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -10px;
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 15px solid var(--white);
+        }
+        
+        .love-meter {
+            height: 30px;
+            background: #ddd;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        .love-level {
+            height: 100%;
+            background: linear-gradient(to right, #ff758f, #ff4d6d);
+            width: 0%;
+            transition: width 1s ease-in-out;
+        }
+        
+        .emoji {
+            font-size: 50px;
+            margin: 10px 0;
+        }
+        
+        .restart-btn {
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+        
+        .restart-btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .cupid {
+            position: absolute;
+            right: -80px;
+            top: -30px;
+            width: 80px;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin-top: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .cupid {
+                position: relative;
+                right: 0;
+                top: -50px;
+                width: 60px;
+                margin: 0 auto;
+            }
+        }
+        
+        .hearts-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .heart {
+            position: absolute;
+            top: -100px;
+            font-size: 20px;
+            opacity: 0.8;
+            animation: fall linear;
+        }
+        
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="hearts-container" id="hearts-container"></div>
+    
+    <div class="container">
+        <h1>Love-O-Meter  (Love or Just Like?)</h1>
+        <p>Pour your heart out about your valentine, and our cupid decode your feelings—spotting sweet love or sneaky little lies! 💘😂</p>
+        
+        <div class="mic-container">
+            <div class="mic-btn" id="mic-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                    <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                </svg>
+            </div>
+        </div>
+        
+        <div class="transcript" id="transcript">
+            <div class="empty-transcript">Your words will appear here...</div>
+        </div>
+        
+        <div class="response-container" id="response-container">
+            <img src="https://th.bing.com/th/id/OIP.VxK04w9D4GPzy7OgMtiXIAHaHa?pid=ImgDet&w=184&h=184&c=7&dpr=1.3" alt="Cupid" class="cupid">
+            <div class="response-bubble" id="response-text"></div>
+            <div class="emoji" id="response-emoji"></div>
+            <div class="love-meter">
+                <div class="love-level" id="love-level"></div>
+            </div>
+            <button class="restart-btn" id="restart-btn">Try Again</button>
+        </div>
+    </div>
+    
+    <script>
+        // Elements
+        const micBtn = document.getElementById('mic-btn');
+        const transcript = document.getElementById('transcript');
+        const responseContainer = document.getElementById('response-container');
+        const responseText = document.getElementById('response-text');
+        const responseEmoji = document.getElementById('response-emoji');
+        const loveLevel = document.getElementById('love-level');
+        const restartBtn = document.getElementById('restart-btn');
+        const heartsContainer = document.getElementById('hearts-container');
+        
+        // Speech recognition setup
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition;
+        
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+            
+            // Speech recognition event handlers
+            recognition.onstart = function() {
+                micBtn.classList.add('pulse');
+                transcript.innerHTML = '<div class="empty-transcript">Listening...</div>';
+            };
+            
+            recognition.onresult = function(event) {
+                const speechResult = event.results[0][0].transcript;
+                transcript.innerHTML = `<strong>You said:</strong> "${speechResult}"`;
+                analyzeText(speechResult);
+            };
+            
+            recognition.onerror = function(event) {
+                console.error('Speech recognition error', event.error);
+                micBtn.classList.remove('pulse');
+                if (event.error === 'no-speech') {
+                    transcript.innerHTML = '<div class="empty-transcript">No speech detected. Try again!</div>';
+                } else {
+                    transcript.innerHTML = `<div class="empty-transcript">Error: ${event.error}</div>`;
+                }
+            };
+            
+            recognition.onend = function() {
+                micBtn.classList.remove('pulse');
+            };
+            
+        } else {
+            transcript.innerHTML = 'Sorry, your browser does not support speech recognition.';
+            micBtn.style.display = 'none';
+        }
+        
+        // Event listeners
+        micBtn.addEventListener('click', () => {
+            try {
+                recognition.start();
+            } catch (e) {
+                console.error('Recognition already started', e);
+            }
+        });
+        
+        restartBtn.addEventListener('click', () => {
+            responseContainer.style.display = 'none';
+            transcript.innerHTML = '<div class="empty-transcript">Your words will appear here...</div>';
+        });
+        
+        // Analysis function
+        function analyzeText(text) {
+            // Convert to lowercase for easier matching
+            const lowerText = text.toLowerCase();
+            
+            // Keywords to look for
+            const loveKeywords = ['love', 'adore', 'cherish', 'heart', 'passion', 'devoted', 'crazy about'];
+            const negativeKeywords = ['hate', 'annoying', 'irritating', 'boring', 'tired of', 'don\'t like', 'problem'];
+            const uncertainKeywords = ['maybe', 'sometimes', 'occasionally', 'not sure', 'thinking', 'might'];
+            const commitmentKeywords = ['marry', 'wedding', 'forever', 'future', 'together', 'lifelong'];
+            const physicalKeywords = ['beautiful', 'handsome', 'pretty', 'hot', 'attractive', 'gorgeous', 'cute'];
+            
+            // Count occurrences
+            let loveScore = countKeywords(lowerText, loveKeywords);
+            let negativeScore = countKeywords(lowerText, negativeKeywords);
+            let uncertaintyScore = countKeywords(lowerText, uncertainKeywords);
+            let commitmentScore = countKeywords(lowerText, commitmentKeywords);
+            let physicalScore = countKeywords(lowerText, physicalKeywords);
+            
+            // Calculate overall love percentage
+            let totalPossibleScore = 15; // Maximum possible score
+            let actualScore = (loveScore * 1.5) + (commitmentScore * 1.2) + (physicalScore * 0.8) - 
+                            (negativeScore * 1.8) - (uncertaintyScore * 0.5);
+            
+            // Clamp between 0 and total possible
+            actualScore = Math.max(0, Math.min(actualScore, totalPossibleScore));
+            
+            // Convert to percentage
+            const lovePercentage = Math.round((actualScore / totalPossibleScore) * 100);
+            
+            // Generate funny response based on analysis
+            let response, emoji;
+            
+            if (lovePercentage < 20) {
+                response = generateLowLoveResponse(physicalScore, negativeScore);
+                emoji = '😬';
+            } else if (lovePercentage < 50) {
+                response = generateMediumLowResponse(uncertaintyScore, physicalScore);
+                emoji = '🤔';
+            } else if (lovePercentage < 75) {
+                response = generateMediumHighResponse(commitmentScore, loveScore);
+                emoji = '😊';
+            } else {
+                response = generateHighLoveResponse(loveScore, commitmentScore);
+                emoji = '😍';
+            }
+            
+            // Show response
+            responseText.textContent = response;
+            responseEmoji.textContent = emoji;
+            loveLevel.style.width = `${lovePercentage}%`;
+            responseContainer.style.display = 'block';
+            
+            // Create falling hearts if love percentage is high
+            if (lovePercentage > 70) {
+                createHearts(20);
+            }
+        }
+        
+        function countKeywords(text, keywords) {
+            let count = 0;
+            keywords.forEach(word => {
+                const regex = new RegExp('\\b' + word + '\\b', 'gi');
+                const matches = text.match(regex);
+                if (matches) {
+                    count += matches.length;
+                }
+            });
+            return count;
+        }
+        
+        // Response generators
+        function generateLowLoveResponse(physicalScore, negativeScore) {
+            const responses = [
+                "Hmm... are you sure this is your valentine and not your annoying neighbor?",
+                "I'm sensing the passion of a wet blanket here. Maybe try flowers?",
+                "The AI cupid is scratching his head right now...",
+                "On a scale of 'meh' to 'wow', you're giving strong 'did I leave the stove on?' energy.",
+                "Your enthusiasm reminds me of someone getting a root canal. But cuter!"
+            ];
+            
+            if (physicalScore > 0 && negativeScore > 0) {
+                responses.push("So they're gorgeous but drive you crazy? Classic rom-com material!");
+            }
+            
+            return responses[Math.floor(Math.random() * responses.length)];
+        }
+        
+        function generateMediumLowResponse(uncertaintyScore, physicalScore) {
+            const responses = [
+                "You sound like you're still in the 'do they like my Instagram posts?' phase.",
+                "I'm getting 'might write a song about you, might ghost you' vibes here.",
+                "This has 'we met last week but I've planned our wedding' energy.",
+                "You're giving off strong 'I like them but haven't deleted my dating apps' signals."
+            ];
+            
+            if (uncertaintyScore > 1) {
+                responses.push("All that uncertainty! Are you writing Valentine's cards or weather forecasts?");
+            }
+            
+            if (physicalScore > 1) {
+                responses.push("I see you noticed their looks! Next step: learning their name.");
+            }
+            
+            return responses[Math.floor(Math.random() * responses.length)];
+        }
+        
+        function generateMediumHighResponse(commitmentScore, loveScore) {
+            const responses = [
+                "You two are probably that annoying couple with matching phone wallpapers.",
+                "I bet you have 67 inside jokes that no one else finds funny. Adorable!",
+                "You sound like you're one romantic dinner away from adopting a pet together.",
+                "You're giving me 'finished Netflix together and didn't cheat on any episodes' vibes."
+            ];
+            
+            if (commitmentScore > 0) {
+                responses.push("Planning a future together? Don't forget to argue about whose family to visit for holidays!");
+            }
+            
+            if (loveScore > 2) {
+                responses.push("You've used the L-word multiple times! Next you'll be sharing a Netflix account - so brave!");
+            }
+            
+            return responses[Math.floor(Math.random() * responses.length)];
+        }
+        
+        function generateHighLoveResponse(loveScore, commitmentScore) {
+            const responses = [
+                "You two were definitely puzzle pieces from the same box in a past life.",
+                "I'm getting tooth-rotting sweetness here. Should I call a dentist?",
+                "You're making AI cupid blush with all this lovey-dovey talk!",
+                "If you were any more perfect together, you'd be a romantic comedy that critics actually like."
+            ];
+            
+            if (loveScore > 2 && commitmentScore > 1) {
+                responses.push("Love AND commitment? Save some relationship goals for the rest of us!");
+            }
+            
+            return responses[Math.floor(Math.random() * responses.length)];
+        }
+        
+        // Create falling hearts animation
+        function createHearts(count) {
+            // Clear existing hearts first
+            heartsContainer.innerHTML = '';
+            
+            for (let i = 0; i < count; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.classList.add('heart');
+                    heart.innerHTML = ['❤️', '💕', '💖', '💗', '💘'][Math.floor(Math.random() * 5)];
+                    
+                    // Random position and animation
+                    const startPos = Math.random() * 100;
+                    const duration = 5 + Math.random() * 10;
+                    const delay = Math.random() * 3;
+                    
+                    heart.style.left = `${startPos}vw`;
+                    heart.style.animationDuration = `${duration}s`;
+                    heart.style.animationDelay = `${delay}s`;
+                    
+                    heartsContainer.appendChild(heart);
+                    
+                    // Remove after animation completes
+                    setTimeout(() => {
+                        heart.remove();
+                    }, (duration + delay) * 1000);
+                    
+                }, i * 200);
+            }
+        }
+        
+        // Create initial hearts
+        createHearts(1000);
+    </script>
+</body>
+</html>
